@@ -2,7 +2,10 @@ $ErrorActionPreference = "Stop"
 
 $ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ElectronExe = Join-Path $ProjectDir "node_modules\electron\dist\electron.exe"
-$IconPath = Join-Path $ProjectDir "upstream\favicon.ico"
+$IconPath = Join-Path $ProjectDir "assets\icon.ico"
+if (-not (Test-Path $IconPath)) {
+    $IconPath = Join-Path $ProjectDir "upstream\favicon.ico"
+}
 
 if (-not (Test-Path $ElectronExe)) {
     Write-Error "Electron executable not found at: $ElectronExe"

@@ -23,7 +23,7 @@ let lastSaveDirectory = app.getPath("downloads");
 let currentStatus = {
   state: "idle",
   online: true,
-  message: "Çevrimdışı çalışmaya hazır",
+  message: "Ready for offline use",
   version: updater.getLocalVersion(),
 };
 
@@ -40,10 +40,10 @@ function broadcastStatus(patch) {
 
 function getBootstrapHtml() {
   return `<!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Convert to it! — İlk Kurulum</title>
+  <title>Convert to it! — Initial Setup</title>
   <style>
     body {
       margin: 0;
@@ -71,8 +71,8 @@ function getBootstrapHtml() {
 </head>
 <body>
   <div class="card">
-    <h1>Convert to it! Hazırlanıyor</h1>
-    <p>İlk çalıştırma için yerel çevrimdışı paket derleniyor. Sağ alttaki durum çubuğundan ilerlemeyi takip edebilirsiniz...</p>
+    <h1>Preparing Convert to it!</h1>
+    <p>Building the local offline bundle for first launch. You can follow the progress in the status bar at the bottom right...</p>
   </div>
 </body>
 </html>`;
@@ -130,7 +130,7 @@ async function checkAndAutoUpdate({ manual = false } = {}) {
   try {
     broadcastStatus({
       state: "checking",
-      message: "GitHub üzerinden güncellemeler kontrol ediliyor...",
+      message: "Checking for updates on GitHub...",
       progress: 5,
     });
 
@@ -140,7 +140,7 @@ async function checkAndAutoUpdate({ manual = false } = {}) {
       broadcastStatus({
         state: "offline",
         online: false,
-        message: "İnternet yok — yerel çevrimdışı sürüm aktif",
+        message: "Offline — local bundle is active",
       });
       return checkResult;
     }
@@ -150,8 +150,8 @@ async function checkAndAutoUpdate({ manual = false } = {}) {
         state: "idle",
         online: true,
         message: manual
-          ? "En güncel sürümü kullanıyorsunuz"
-          : checkResult.localVersion?.message || "Çevrimdışı çalışmaya hazır",
+          ? "You are using the latest version"
+          : checkResult.localVersion?.message || "Ready for offline use",
         version: checkResult.localVersion,
       });
       return checkResult;
@@ -172,7 +172,7 @@ async function checkAndAutoUpdate({ manual = false } = {}) {
   } catch (err) {
     broadcastStatus({
       state: "error",
-      message: `Güncelleme hatası: ${err.message || String(err)}`.slice(0, 90),
+      message: `Update error: ${err.message || String(err)}`.slice(0, 90),
     });
     return { error: err.message };
   }
@@ -184,13 +184,13 @@ function setupDownloadSaveAsDialog() {
     const ext = path.extname(fileName).replace(/^\./, "");
     const filters = ext
       ? [
-          { name: `${ext.toUpperCase()} Dosyası`, extensions: [ext] },
-          { name: "Tüm Dosyalar", extensions: ["*"] },
+          { name: `${ext.toUpperCase()} File`, extensions: [ext] },
+          { name: "All Files", extensions: ["*"] },
         ]
-      : [{ name: "Tüm Dosyalar", extensions: ["*"] }];
+      : [{ name: "All Files", extensions: ["*"] }];
 
     item.setSaveDialogOptions({
-      title: "Dönüştürülen Dosyayı Farklı Kaydet",
+      title: "Save Converted File As",
       defaultPath: path.join(lastSaveDirectory, fileName),
       filters,
     });
@@ -206,15 +206,26 @@ function setupDownloadSaveAsDialog() {
   });
 }
 
+function resolveAppIcon() {
+  const candidates = [
+    path.join(updater.ROOT_DIR, "assets", "icon.ico"),
+    path.join(updater.ROOT_DIR, "assets", "logo.png"),
+    path.join(updater.UPSTREAM_DIR, "favicon.ico"),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return undefined;
+}
+
 function createWindow() {
-  const iconPath = path.join(updater.UPSTREAM_DIR, "favicon.ico");
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 820,
     minWidth: 760,
     minHeight: 540,
     title: "Convert to it! (Local Offline)",
-    icon: fs.existsSync(iconPath) ? iconPath : undefined,
+    icon: resolveAppIcon(),
     autoHideMenuBar: true,
     backgroundColor: "#0f131a",
     webPreferences: {
@@ -254,7 +265,7 @@ ipcMain.handle("updater:reload", () => {
     broadcastStatus({
       state: "idle",
       online: true,
-      message: "Çevrimdışı çalışmaya hazır",
+      message: "Ready for offline use",
       version: updater.getLocalVersion(),
     });
     mainWindow.loadURL("app://-/index.html");

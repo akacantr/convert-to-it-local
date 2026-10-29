@@ -1,42 +1,50 @@
-# Convert to it! — Yerel Çevrimdışı Masaüstü Uygulaması
+<div align="center">
+  <img src="./assets/logo.png" alt="Convert to it! Logo" width="140" height="140" />
 
-`https://p2r3.github.io/convert/` (`p2r3/convert`) projesinin tamamen yerel, %100 çevrimdışı (offline) çalışabilen ve yeni converter güncellemeleri geldiğinde kendini Git üzerinden akıllıca (delta güncelleme ile) güncelleyen masaüstü sürümüdür.
+  # Convert to it! — Local Offline Desktop App
 
-## Kurulum (GitHub'dan Klonlandığında)
+  <p>
+    A 100% offline-capable local desktop application for <a href="https://p2r3.github.io/convert/">Convert to it!</a> (<code>p2r3/convert</code>) featuring smart Git delta updates and local WebAssembly compilation.
+  </p>
+</div>
 
-Gereksinimler: **Git** ve **Bun** (veya proje içindeki `.runtime/bun/bun.exe`).
+---
+
+## Installation (When Cloned from GitHub)
+
+**Prerequisites:** [Git](https://git-scm.com/) and [Bun](https://bun.sh/) (or portable `.runtime/bun/bun.exe`).
 
 ```powershell
 git clone https://github.com/akacantr/convert-to-it-local.git
 cd convert-to-it-local
 bun install
-bun run sync   # İlk çevrimdışı paketi (upstream + app-dist) indirir ve derler
-bun run start  # Uygulamayı başlatır
+bun run sync   # Clones upstream & builds the initial local offline bundle (app-dist)
+bun run start  # Launches the desktop application
 ```
 
-İsteğe bağlı olarak masaüstü ve Başlat Menüsü kısayollarını oluşturmak için:
+To optionally create Desktop and Start Menu shortcuts on Windows:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\create-shortcuts.ps1
 ```
 
-## Nasıl Başlatılır?
+## How to Launch
 
-1. **Masaüstü veya Başlat Menüsü Kısayolu:**
-   Masaüstünüzde ve Başlat Menüsünde oluşturulan **`Convert to it!`** kısayoluna çift tıklayarak doğrudan açabilirsiniz.
-2. **Proje Klasöründen:**
-   [`Convert-to-it.vbs`](./Convert-to-it.vbs) dosyasına çift tıklayarak konsol penceresi olmadan başlatabilirsiniz.
-3. **Terminalden:**
+1. **Desktop or Start Menu Shortcut:**
+   Double-click the **`Convert to it!`** shortcut on your Desktop or Start Menu.
+2. **From the Project Folder:**
+   Double-click [`Convert-to-it.vbs`](./Convert-to-it.vbs) to launch without a background console window.
+3. **From the Terminal:**
    ```powershell
    bun run start
-   # veya taşınabilir runtime ile:
+   # or with portable runtime:
    .\.runtime\bun\bun.exe run start
    ```
 
-## Mimari ve Özellikler
+## Architecture & Features
 
-- **Anında Çevrimdışı Açılış (`app-dist/`):** Uygulama açıldığında internet bağlantısı beklemeksizin doğrudan yerel diskteki `app-dist/` klasöründen (`app://-/index.html`) yüklenir. `SharedArrayBuffer` gerektiren tüm WebAssembly araçları (`ffmpeg`, `clang`, `7z`, `imagemagick` vb.) için gerekli COOP/COEP güvenlik başlıkları yerel protokol tarafından otomatik sağlanır.
-- **Akıllı Git + Yerel Derleme ([`src/updater.cjs`](./src/updater.cjs)):**
-  - Uygulama açıldıktan sonra internet bağlantısı varsa arka planda `upstream/` klasöründeki resmi `p2r3/convert` GitHub deposunu kontrol eder.
-  - Sitedeki converter'lar güncellendiğinde 300 MB'lık tüm paketi baştan indirmek yerine **sadece değişen kodları** (`git fetch` + `git reset`) çeker ve Bun ile yerel olarak derler.
-  - Sağ alt köşedeki durum çubuğunda derleme ilerlemesini gösterir ve tamamlandığında **"Yeni Sürüm Hazır • Yenile"** butonu sunar.
-- **Farklı Kaydet Diyaloğu:** Dönüştürme işlemi tamamlanıp çıktı dosyası indirildiğinde Windows **"Farklı Kaydet"** penceresi açılarak nereye kaydedileceğini sorar ve son seçtiğiniz klasörü hatırlar.
+- **Instant Offline Startup (`app-dist/`):** Launches immediately from the local disk (`app://-/index.html`) without requiring an internet connection. Automatically serves the required `Cross-Origin-Opener-Policy` (`same-origin`) and `Cross-Origin-Embedder-Policy` (`credentialless`) security headers needed for multi-threaded `SharedArrayBuffer` WebAssembly tools (`ffmpeg`, `clang`, `7z`, `imagemagick`, etc.).
+- **Smart Git Delta Updates + Local Build ([`src/updater.cjs`](./src/updater.cjs)):**
+  - When an internet connection is available, the app silently checks the official `p2r3/convert` GitHub repository in `upstream/`.
+  - Instead of re-downloading a 300+ MB bundle whenever converters are updated, it fetches **only the changed source commits** (`git fetch` + `git reset`) and compiles the bundle locally using Bun.
+  - Displays live build progress in a sleek bottom-right status bar and offers a **"New Version Ready • Reload"** button once finished.
+- **Native Save As Dialog:** Prompts with a native Windows **"Save As"** dialog whenever a converted output file is downloaded, remembering your last chosen directory.

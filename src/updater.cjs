@@ -212,7 +212,7 @@ let updateInProgress = false;
 
 async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectron } = {}) {
   if (updateInProgress) {
-    throw new Error("Güncelleme zaten devam ediyor.");
+    throw new Error("An update is already in progress.");
   }
 
   updateInProgress = true;
@@ -224,7 +224,7 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
       state: "updating",
       step: "fetch",
       progress: 10,
-      message: "GitHub deposundan son değişiklikler kontrol ediliyor...",
+      message: "Checking for latest changes from GitHub repository...",
     });
 
     if (!fs.existsSync(path.join(UPSTREAM_DIR, ".git"))) {
@@ -263,7 +263,7 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
         state: "updating",
         step: "pull",
         progress: 20,
-        message: `Yeni commit uygulanıyor (${remoteMeta.shortSha}: ${remoteMeta.message})...`,
+        message: `Applying new commit (${remoteMeta.shortSha}: ${remoteMeta.message})...`,
       });
       await runCommand(git, ["reset", "--hard", "origin/master"]);
       await runCommand(git, ["submodule", "update", "--init", "--recursive"]);
@@ -279,7 +279,7 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
         state: "updating",
         step: "install",
         progress: 35,
-        message: "Paket bağımlılıkları güncelleniyor (bun install)...",
+        message: "Updating package dependencies (bun install)...",
       });
       await runCommand(bun, ["install", "--no-save", "--ignore-scripts"]);
     }
@@ -288,7 +288,7 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
       state: "updating",
       step: "assemble",
       progress: 55,
-      message: "Dönüştürücü bileşenleri (WASM & Recipes) hazırlanıyor...",
+      message: "Assembling converter components (WASM & Recipes)...",
     });
     await runCommand(bun, ["run", "build:assemble", "--all"]);
 
@@ -296,7 +296,7 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
       state: "updating",
       step: "build",
       progress: 75,
-      message: "Uygulama yerel kullanım için derleniyor (Vite)...",
+      message: "Building application for local offline use (Vite)...",
     });
     await runCommand(bun, ["x", "vite", "build"], {
       env: {
@@ -307,14 +307,14 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
 
     const upstreamDist = path.join(UPSTREAM_DIR, "dist");
     if (!fs.existsSync(path.join(upstreamDist, "index.html"))) {
-      throw new Error("Derleme tamamlandı ancak dist/index.html bulunamadı.");
+      throw new Error("Build completed, but dist/index.html was not found.");
     }
 
     onStatus({
       state: "updating",
       step: "cache",
       progress: 88,
-      message: "Desteklenen format önbelleği (cache.json) hazırlanıyor...",
+      message: "Preparing supported format cache (cache.json)...",
     });
     await fetchOrBuildCacheJson(upstreamDist, generateCacheViaElectron);
 
@@ -322,7 +322,7 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
       state: "updating",
       step: "deploy",
       progress: 95,
-      message: "Çevrimdışı dosyalar güncelleniyor...",
+      message: "Updating local offline files...",
     });
 
     await fsp.mkdir(APP_DIST_DIR, { recursive: true });
@@ -342,7 +342,7 @@ async function performDeltaUpdate({ onStatus = () => {}, generateCacheViaElectro
       state: "ready",
       step: "done",
       progress: 100,
-      message: `Yeni sürüm hazır (${newVersionInfo.shortSha})`,
+      message: `New version ready (${newVersionInfo.shortSha})`,
       version: newVersionInfo,
     });
 

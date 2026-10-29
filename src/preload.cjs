@@ -182,14 +182,14 @@ function mountDesktopStatusBar() {
   container.innerHTML = `
     <span class="dot" id="status-dot"></span>
     <div class="info">
-      <div class="status-text" id="status-text">Yerel Çevrimdışı Sürüm</div>
-      <div class="sub-text" id="sub-text">Hazır</div>
+      <div class="status-text" id="status-text">Local Offline Build</div>
+      <div class="sub-text" id="sub-text">Ready</div>
       <div class="progress-wrap">
         <div class="progress-fill" id="progress-fill"></div>
       </div>
     </div>
-    <button class="btn-check" id="btn-check" title="GitHub üzerinden yeni converter güncellemelerini kontrol et">Güncelle</button>
-    <button class="btn-reload" id="btn-reload" title="Yeni derlenen sürümü hemen yükle">Yeni Sürüm Hazır • Yenile</button>
+    <button class="btn-check" id="btn-check" title="Check for new converter updates on GitHub">Update</button>
+    <button class="btn-reload" id="btn-reload" title="Load the newly built version now">New Version Ready • Reload</button>
   `;
 
   shadow.appendChild(style);
@@ -213,37 +213,37 @@ function mountDesktopStatusBar() {
     if (state === "updating" || state === "checking") {
       container.classList.add("updating");
       dotEl.classList.add("updating");
-      statusTextEl.textContent = message || "Güncelleniyor...";
+      statusTextEl.textContent = message || "Updating...";
       subTextEl.textContent =
         typeof progress === "number"
-          ? `Arka planda derleniyor (%${progress})`
-          : "GitHub kontrol ediliyor...";
+          ? `Building in background (${progress}%)`
+          : "Checking GitHub...";
       progressFillEl.style.width = `${progress || 15}%`;
     } else if (state === "ready") {
       container.classList.add("ready");
       dotEl.classList.add("ready");
-      statusTextEl.textContent = message || "Yeni sürüm hazır!";
+      statusTextEl.textContent = message || "New version ready!";
       subTextEl.textContent = version?.message
         ? `${version.shortSha}: ${version.message}`
-        : "Uygulamak için yenileyin";
+        : "Reload to apply update";
     } else if (state === "offline") {
       dotEl.classList.add("offline");
       statusTextEl.textContent = version?.shortSha
-        ? `Çevrimdışı Mod • #${version.shortSha}`
-        : "Çevrimdışı Mod";
-      subTextEl.textContent = message || "İnternet bağlantısı yok, yerel sürüm aktif";
+        ? `Offline Mode • #${version.shortSha}`
+        : "Offline Mode";
+      subTextEl.textContent = message || "No internet connection — local bundle active";
     } else if (state === "error") {
       dotEl.classList.add("offline");
       statusTextEl.textContent = version?.shortSha
-        ? `Yerel Sürüm • #${version.shortSha}`
-        : "Yerel Sürüm Aktif";
-      subTextEl.textContent = message || "Güncelleme kontrol edilemedi";
+        ? `Local Build • #${version.shortSha}`
+        : "Local Build Active";
+      subTextEl.textContent = message || "Could not check for updates";
     } else {
       if (online === false) dotEl.classList.add("offline");
       statusTextEl.textContent = version?.shortSha
-        ? `Güncel • #${version.shortSha}`
-        : "Yerel Çevrimdışı Sürüm";
-      subTextEl.textContent = message || (version?.message ? version.message : "Çevrimdışı çalışmaya hazır");
+        ? `Up to Date • #${version.shortSha}`
+        : "Local Offline Build";
+      subTextEl.textContent = message || (version?.message ? version.message : "Ready for offline use");
     }
   }
 
