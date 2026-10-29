@@ -1,0 +1,17 @@
+{
+  "name": "convert-to-it-local",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local offline-first desktop application for p2r3/convert with smart Git delta updates",
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "sync": "bun run src/cli-sync.cjs"
+  },
+  "dependencies": {
+    "electron": "^35.0.0"
+  },
+  "trustedDependencies": [
+    "electron"
+  ]
+}

@@ -1,0 +1,12 @@
+# Dependencies & Runtime
+node_modules/
+.runtime/
+
+# Dynamically cloned & built offline upstream assets
+upstream/
+app-dist/
+
+# Logs & OS files
+*.log
+.DS_Store
+Thumbs.db
